@@ -9,17 +9,18 @@ import json
 import time
 import random
 import requests_cache
-NUM_THREADS = 5
-
+import backoff
 class populateJson(ABC):
     def __init__(self) -> None:
         requests_cache.install_cache('multithread_cache')
         self.api = "https://api.crossref.org/works/"
     
+    @backoff.on_exception(backoff.expo, requests.exceptions.ReadTimeout, max_tries=20)
     def query_crossref(self, doi):
         
         query = self.api + doi
         time.sleep(random.randint(1,5))
+        
         req = requests.get(query, timeout=60)
         return req, doi
     
@@ -82,7 +83,7 @@ class populateJson(ABC):
             print(f"Response phase ended after {time.time()-start}s")
             if not os.path.isdir('output'):
                 os.makedirs('output')
-            with open('output'+sep+'batch', 'w', encoding='utf8') as out:
+            with open('output'+sep+'batch.json', 'w', encoding='utf8') as out:
                 json.dump(result, out) 
 
 def get_all_in_dir(dir, format = 'json'):

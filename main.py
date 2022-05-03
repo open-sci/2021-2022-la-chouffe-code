@@ -12,8 +12,8 @@ if __name__ == '__main__':
                     help='Path to the file or to the directory')
    
     args = parser.parse_args()
-
     start = time.time()
     pop = populateJson()
     pop.populate(args.path)
+    print(f'Finished in {time.time() - start} seconds')
 
