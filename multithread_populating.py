@@ -17,25 +17,26 @@ class populateJson(ABC):
     def query_crossref(self, doi):
         
         query = self.api + doi
-        time.sleep(random.randint(1,5))
+        time.sleep(random.randint(1,3))
         
         req = requests.get(query, timeout=60)
         return req, doi
     
     def _json_reader(self, file, skip = False):
         result = dict()
+        filename = file.split(sep)[1]
         data = None           
         with open(file, encoding='utf8', mode='r') as json_data:
             data = json.load(json_data)
             if skip:
                 with open(skip, 'r') as read:
-                    done = json.load(read)
-                    for key in done:
+                    result = json.load(read)
+                    for key in result:
                         data.pop(key)
+        
 
         try:
             for i in range(0,len(data.keys()),1000):
-                print(i)
                 end = i + 999
                 if end > len(data)-1:
                     end = len(data)
@@ -77,16 +78,19 @@ class populateJson(ABC):
                                         result[index][doi] = tmp
                             else:
                                 print('error', response.status_code)
+            with open(f"temp{sep}completed{sep +filename}", 'w+') as out:
+                json.dump(result, out, indent=4)
             return result
-        except:
-            print(f'Error in processing {file}: what has been processed for now is in temp{sep+file}.')
-            json.dump(result)
+        except Exception as e:
+            print(f'Error in processing {file}: what has been processed for now is in temp{sep+file}. \nError: {e}')
+            with open(f"temp{sep +filename}", 'w+') as out:
+                json.dump(result, out, indent=4)
+            return result
     
     def populate(self, path):
         start = time.time()
         result = dict()
         if os.path.isdir(path):
-            
             queue = list(get_all_in_dir(path))
             length = len(queue)
             idx = 0
@@ -94,15 +98,21 @@ class populateJson(ABC):
                 raise NotImplementedError
             start_sub = time.time()
             for file in queue:
-                done = get_all_in_dir('temp')
+                part_done = get_all_in_dir('temp')
+                done = get_all_in_dir(f'temp{sep}completed')
                 name= file.split(sep)[1]
                 idx +=1
                 print(f'Opening {name}, file {idx} out of {length}')
+                tmp = None
                 skip = False
-                if file in done:
-                    skip = 'temp' + sep + file
-                tmp = self._json_reader(file, skip = skip)
-                
+                if f'temp{sep}completed' + sep + name in done:
+                    with open(f'temp{sep}completed{sep+name}', 'r') as infile:
+                        tmp = json.load(infile)
+                elif f'temp{sep}' + name in part_done:
+                    skip = 'temp' + sep + name
+                    tmp = self._json_reader(file, skip = skip)
+                else:
+                    tmp = self._json_reader(file, skip = skip)
                 for key in tmp.keys():
                     if key in result:
                         result[key].update(tmp[key])
@@ -116,16 +126,14 @@ class populateJson(ABC):
             if not os.path.isdir('output'):
                 os.makedirs('output')
             with open('output'+sep+f'batch.json', 'w', encoding='utf8') as out:
-                json.dump(result, out) 
+                json.dump(result, out, indent=4) 
 
 def get_all_in_dir(dir, format = 'json'):
-    try:
-        for filename in os.listdir(dir):
-            f = os.path.join(dir, filename)
-            if os.path.isfile(f) and f[-4:] == format:
-                yield f
-    except:
-        os.makedirs(dir)
+    for filename in os.listdir(dir):
+        f = os.path.join(dir, filename)
+        if os.path.isfile(f) and f[-4:] == format:
+            yield f
+    
 
 
             
