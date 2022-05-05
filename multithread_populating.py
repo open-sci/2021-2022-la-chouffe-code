@@ -22,60 +22,65 @@ class populateJson(ABC):
         req = requests.get(query, timeout=60)
         return req, doi
     
-    def _json_reader(self, file):
+    def _json_reader(self, file, skip = False):
         result = dict()
+        data = None           
         with open(file, encoding='utf8', mode='r') as json_data:
             data = json.load(json_data)
-            chunks = []
-            iterations = 1
-            if len(data) > 1000:
-                #Dividi in pezzettini
-                iterations = len(data) //1000
+            if skip:
+                with open(skip, 'r') as read:
+                    done = json.load(read)
+                    for key in done:
+                        data.pop(key)
 
-            
+        try:
             for i in range(0,len(data.keys()),1000):
                 print(i)
                 end = i + 999
-                if end > len(data.keys())-1:
-                    end = len(data.keys())
+                if end > len(data)-1:
+                    end = len(data)
                 to_analyse = list(data.keys())[i:end]
                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                    for response, doi in executor.map(self.query_crossref, to_analyse):
-                        index = " ".join(data[doi]['issns'])
-                        if response.headers["content-type"].strip().startswith("application/json"):
-                            if response.status_code != 200:
-                                tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
-                                if index not in result:
-                                    
-                                    result[index] = {doi: tmp}
+                    
+                        for response, doi in executor.map(self.query_crossref, to_analyse):
+                            index = " ".join(data[doi]['issns'])
+                            if response.headers["content-type"].strip().startswith("application/json"):
+                                if response.status_code != 200:
+                                    tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
+                                    if index not in result:
+                                        
+                                        result[index] = {doi: tmp}
+                                    else:
+                                        result[index][doi] = tmp
                                 else:
-                                    result[index][doi] = tmp
+                                    info = response.json()['message']
+                                    
+                                    tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
+
+                                    if 'reference' in info:
+                                        for element in info['reference']:
+                                            tmp['reference'] = {element['key']:{}}
+                                            if 'DOI' in element:
+                                                tmp['reference'] = {element['key']:{'doi':element['DOI']}}
+                                            else:
+                                                tmp['reference'] = {element['key']:{'doi':'not-specified'}}
+                                            if 'doi-asserted-by' in element:
+                                                tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
+                                            else:
+                                                tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
+
+                                    
+                                    if index not in result:
+                                        
+                                        result[index] = {doi: tmp}
+                                    else:
+                                        result[index][doi] = tmp
                             else:
-                                info = response.json()['message']
-                                
-                                tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
-
-                                if 'reference' in info:
-                                    for element in info['reference']:
-                                        tmp['reference'] = {element['key']:{}}
-                                        if 'DOI' in element:
-                                            tmp['reference'] = {element['key']:{'doi':element['DOI']}}
-                                        else:
-                                            tmp['reference'] = {element['key']:{'doi':'not-specified'}}
-                                        if 'doi-asserted-by' in element:
-                                            tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
-                                        else:
-                                            tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
-
-                                
-                                if index not in result:
-                                    
-                                    result[index] = {doi: tmp}
-                                else:
-                                    result[index][doi] = tmp
-                        else:
-                            print('error', response.status_code)
+                                print('error', response.status_code)
             return result
+        except:
+            print(f'Error in processing {file}: what has been processed for now is in temp{sep+file}.')
+            json.dump(result)
     
     def populate(self, path):
         start = time.time()
@@ -89,11 +94,15 @@ class populateJson(ABC):
                 raise NotImplementedError
             start_sub = time.time()
             for file in queue:
-                
+                done = get_all_in_dir('temp')
                 name= file.split(sep)[1]
                 idx +=1
                 print(f'Opening {name}, file {idx} out of {length}')
-                tmp = self._json_reader(file)
+                skip = False
+                if file in done:
+                    skip = 'temp' + sep + file
+                tmp = self._json_reader(file, skip = skip)
+                
                 for key in tmp.keys():
                     if key in result:
                         result[key].update(tmp[key])
@@ -110,10 +119,13 @@ class populateJson(ABC):
                 json.dump(result, out) 
 
 def get_all_in_dir(dir, format = 'json'):
-    for filename in os.listdir(dir):
-        f = os.path.join(dir, filename)
-        if os.path.isfile(f) and f[-4:] == format:
-            yield f
+    try:
+        for filename in os.listdir(dir):
+            f = os.path.join(dir, filename)
+            if os.path.isfile(f) and f[-4:] == format:
+                yield f
+    except:
+        os.makedirs(dir)
 
 
             
