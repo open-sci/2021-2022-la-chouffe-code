@@ -30,9 +30,10 @@ class populateJson(ABC):
             data = json.load(json_data)
             if skip:
                 with open(skip, 'r') as read:
-                    result = json.load(read)
-                    for key in result:
-                        data.pop(key)
+                    done = json.load(read)
+                    for elements in done.values():
+                        for doi in elements.keys():
+                            data.pop(doi)
         
 
         try:
