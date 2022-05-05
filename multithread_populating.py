@@ -1,10 +1,8 @@
 from abc import ABC
 import concurrent.futures
 import requests
-import argparse
 import os
 from os import sep
-from collections import deque
 import json
 import time
 import random
@@ -58,7 +56,17 @@ class populateJson(ABC):
                                 tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
 
                                 if 'reference' in info:
-                                    tmp['reference'] = {info['reference']['key']:{'doi':info['reference']['DOI'], 'doi-asserted-by': info['reference']['doi-asserted-by']}}
+                                    for element in info['reference']:
+                                        tmp['reference'] = {element['key']:{}}
+                                        if 'DOI' in element:
+                                            tmp['reference'] = {element['key']:{'doi':element['DOI']}}
+                                        else:
+                                            tmp['reference'] = {element['key']:{'doi':'not-specified'}}
+                                        if 'doi-asserted-by' in element:
+                                            tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
+                                        else:
+                                            tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
+
                                 
                                 if index not in result:
                                     

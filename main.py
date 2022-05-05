@@ -1,6 +1,6 @@
 
 import argparse
-import os
+
 from os import sep
 import time
 from multithread_populating import populateJson
@@ -13,6 +13,7 @@ if __name__ == '__main__':
    
     args = parser.parse_args()
     start = time.time()
+    print(f'Populating json files in {args.path}. \nStarting...')
     pop = populateJson()
     pop.populate(args.path)
     print(f'Finished in {time.time() - start} seconds')

@@ -1,2 +1,3 @@
 *!gitignore
-multithread_cache.sqlite
+./multithread_cache.sqlite
+./__pychache__
