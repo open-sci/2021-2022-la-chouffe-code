@@ -14,8 +14,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     start = time.time()
     print(f'Populating json files in {args.path}. \nStarting...')
-    os.makedirs(f'.{sep}temp')
-    os.makedirs(f'.{sep}temp{sep}completed')
+    if not os.path.isdir(f'.{sep}temp'):
+        os.makedirs(f'.{sep}temp')
+        os.makedirs(f'.{sep}temp{sep}completed')
     pop = populateJson()
     pop.populate(args.path)
     print(f'Finished in {time.time() - start} seconds')
