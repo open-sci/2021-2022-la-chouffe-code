@@ -5,6 +5,10 @@ from os import sep
 import time
 from multithread_populating import populateJson
 
+'''
+This script launches multithread_populating.
+To launch: py -m <path>
+'''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process files to populate with Crossref information about presence.')

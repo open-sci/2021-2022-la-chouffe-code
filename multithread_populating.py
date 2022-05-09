@@ -1,4 +1,3 @@
-from abc import ABC
 import concurrent.futures
 import requests
 import os
@@ -8,14 +7,21 @@ import time
 import random
 import requests_cache
 import backoff
-class populateJson(ABC):
+
+
+class populateJson:
+    '''
+    This class is used to query Crossref and populate the Json Files.
+    '''
     def __init__(self) -> None:
         requests_cache.install_cache('multithread_cache')
         self.api = "https://api.crossref.org/works/"
     
     @backoff.on_exception(backoff.expo, requests.exceptions.ReadTimeout, max_tries=20)
     def query_crossref(self, doi):
-        
+        '''
+        This method queries crossref by adding to the API url the DOI. It returns the result the request and the doi added. In order to avoid being blocked by the API.
+        '''
         query = self.api + doi
         time.sleep(random.randint(1,3))
         
@@ -23,6 +29,9 @@ class populateJson(ABC):
         return req, doi
     
     def _json_reader(self, file, skip = False):
+        '''
+        This method manages the queries on the file level. If there is a temporary file (in the temp folder), skips the rows done; once the file is completed, it is loaded in the temp/completed folder. This method employs multithreading to speed up the requests at the API. It checks whether a DOI is on Crossref, if there are references and who is responsible for asserting the DOI.
+        '''
         result = dict()
         filename = file.split(sep)[1]
         data = None           
@@ -89,6 +98,10 @@ class populateJson(ABC):
             return result
     
     def populate(self, path):
+        '''
+        This method manages the population of all the files in a directory. It loads temporary or completed files (temp and temp/completed respectively) if present. The output .json file can be found in the output directory.
+        '''
+
         start = time.time()
         result = dict()
         if os.path.isdir(path):
