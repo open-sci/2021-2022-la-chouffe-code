@@ -49,6 +49,7 @@ class populateJson:
             if skip:
                 with open(skip, 'r') as read:
                     done = json.load(read)
+                    result = done
                     for elements in done.values():
                         for doi in elements.keys():
                             data.pop(doi)
