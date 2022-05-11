@@ -8,6 +8,7 @@
 #THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import concurrent.futures
+from tqdm.contrib.concurrent import thread_map
 import requests
 import os
 from os import sep
@@ -16,7 +17,7 @@ import time
 import random
 import requests_cache
 import backoff
-
+from tqdm import tqdm
 
 class populateJson:
     '''
@@ -32,7 +33,7 @@ class populateJson:
         This method queries crossref by adding to the API url the DOI. It returns the result the request and the doi added. In order to avoid being blocked by the API.
         '''
         query = self.api + doi
-        time.sleep(random.randint(1,3))
+        #time.sleep(random.randint(1,3))
         
         req = requests.get(query, timeout=60)
         return req, doi
@@ -54,55 +55,57 @@ class populateJson:
                         for doi in elements.keys():
                             data.pop(doi)
         
-
         try:
-            for i in range(0,len(data.keys()),1000):
+            for i in tqdm(range(0,len(data.keys()),1000)):
                 end = i + 999
                 if end > len(data)-1:
                     end = len(data)
                 to_analyse = list(data.keys())[i:end]
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    
-                        for response, doi in executor.map(self.query_crossref, to_analyse):
-                            index = " ".join(data[doi]['issns'])
-                            if response.headers["content-type"].strip().startswith("application/json"):
-                                if response.status_code != 200:
-                                    tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
-                                    if index not in result:
-                                        
-                                        result[index] = {doi: tmp}
+                with tqdm(total=len(to_analyse)) as pbar:
+
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        
+                            for response, doi in executor.map(self.query_crossref, to_analyse):
+                                pbar.update(1)
+                                index = " ".join(data[doi]['issns'])
+                                if response.headers["content-type"].strip().startswith("application/json"):
+                                    if response.status_code != 200:
+                                        tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
+                                        if index not in result:
+                                            
+                                            result[index] = {doi: tmp}
+                                        else:
+                                            result[index][doi] = tmp
                                     else:
-                                        result[index][doi] = tmp
+                                        info = response.json()['message']
+                                        
+                                        tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
+
+                                        if 'reference' in info:
+                                            for element in info['reference']:
+                                                tmp['reference'] = {element['key']:{}}
+                                                if 'DOI' in element:
+                                                    tmp['reference'] = {element['key']:{'doi':element['DOI']}}
+                                                else:
+                                                    tmp['reference'] = {element['key']:{'doi':'not-specified'}}
+                                                if 'doi-asserted-by' in element:
+                                                    tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
+                                                else:
+                                                    tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
+
+                                        
+                                        if index not in result:
+                                            
+                                            result[index] = {doi: tmp}
+                                        else:
+                                            result[index][doi] = tmp
                                 else:
-                                    info = response.json()['message']
-                                    
-                                    tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
-
-                                    if 'reference' in info:
-                                        for element in info['reference']:
-                                            tmp['reference'] = {element['key']:{}}
-                                            if 'DOI' in element:
-                                                tmp['reference'] = {element['key']:{'doi':element['DOI']}}
-                                            else:
-                                                tmp['reference'] = {element['key']:{'doi':'not-specified'}}
-                                            if 'doi-asserted-by' in element:
-                                                tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
-                                            else:
-                                                tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
-
-                                    
-                                    if index not in result:
-                                        
-                                        result[index] = {doi: tmp}
-                                    else:
-                                        result[index][doi] = tmp
-                            else:
-                                print('error', response.status_code)
+                                    print('error', response.status_code)
             with open(f"temp{sep}completed{sep +filename}", 'w+') as out:
                 json.dump(result, out, indent=4)
             return result
         except Exception as e:
-            print(f'Error in processing {file}: what has been processed for now is in temp{sep+file}. \nError: {e}')
+            print(f'Error in processing {file}: what has been processed for now is in temp{sep+filename}. \nError: {e}')
             with open(f"temp{sep +filename}", 'w+') as out:
                 json.dump(result, out, indent=4)
             return result
