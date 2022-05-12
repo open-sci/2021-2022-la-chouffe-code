@@ -25,7 +25,7 @@ def compute(path):
             reader = json.load(read)
             for el in reader:
                 if el in to_analyse:
-                    to_analyse[el].extend(reader[el])
+                    to_analyse[el].update(reader[el])
                 else:
                     to_analyse[el] = reader[el]
     for issn in to_analyse:
@@ -33,17 +33,20 @@ def compute(path):
         
         
         for doi in info:
-            to_add = {'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0}
+            to_add = {'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':0}
             dois_total += 1
+            to_add['year'] = info[doi]['year']
             if info[doi]['crossref']:
                 to_add['on_crossref'] = 1
                 dois_crossref += 1
-            if info[doi]['reference']:
+            print(info[doi]['crossref'])
+            if info[doi]['reference'] != 0:
                 to_add['ref-num'] = len(info[doi]['reference'])
                 ref_number += 1
+                to_add['reference']+=1
                 
                 for el in info[doi]['reference'].values():
-                    if el['doi'] == 'not specified':
+                    if el['doi'] == 'not-specified':
                         to_add['ref-undefined'] += 1
                         ref_nd += 1
                     elif el['doi-asserted-by'] == 'crossref':
@@ -62,7 +65,7 @@ def compute(path):
     Number of references with no doi: {ref_nd} Percentage: {ref_nd / ref_number}
     ''')
     with open('.' +sep+ 'results' +sep+'aggregate_stats.csv','w+', encoding='utf8') as aggregates:
-        fieldnames = ['issn',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num']
+        fieldnames = ['issn', 'doi-num',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year']
         writer = DictWriter(aggregates, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(aggr)
