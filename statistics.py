@@ -33,7 +33,7 @@ def compute(path):
         
         
         for doi in info:
-            to_add = {'issn' : issn, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0}
+            to_add = {'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0}
             dois_total += 1
             if info[doi]['crossref']:
                 to_add['on_crossref'] = 1
