@@ -82,12 +82,13 @@ class populateJson:
                                         tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
 
                                         if 'reference' in info:
+                                            tmp['reference'] = dict()
                                             for element in info['reference']:
-                                                tmp['reference'] = {element['key']:{}}
+                                                tmp['reference'][element['key']] = dict()
                                                 if 'DOI' in element:
-                                                    tmp['reference'] = {element['key']:{'doi':element['DOI']}}
+                                                    tmp['reference'][element['key']] = {'doi':element['DOI']}
                                                 else:
-                                                    tmp['reference'] = {element['key']:{'doi':'not-specified'}}
+                                                    tmp['reference'][element['key']] = {'doi':'not-specified'}
                                                 if 'doi-asserted-by' in element:
                                                     tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
                                                 else:
