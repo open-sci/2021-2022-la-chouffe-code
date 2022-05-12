@@ -84,15 +84,16 @@ class populateJson:
                                         if 'reference' in info:
                                             tmp['reference'] = dict()
                                             for element in info['reference']:
-                                                tmp['reference'][element['key']] = dict()
-                                                if 'DOI' in element:
-                                                    tmp['reference'][element['key']] = {'doi':element['DOI']}
-                                                else:
-                                                    tmp['reference'][element['key']] = {'doi':'not-specified'}
-                                                if 'doi-asserted-by' in element:
-                                                    tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
-                                                else:
-                                                    tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
+                                                #tmp['reference'][element['key']] = dict()
+                                                tmp['reference'][element['key']] = 1
+                                                #if 'DOI' in element:
+                                                #    tmp['reference'][element['key']] = {'doi':element['DOI']}
+                                                #else:
+                                                #    tmp['reference'][element['key']] = {'doi':'not-specified'}
+                                                #if 'doi-asserted-by' in element:
+                                                #    tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
+                                                #else:
+                                                #    tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
 
                                         
                                         if index not in result:
@@ -117,7 +118,7 @@ class populateJson:
         '''
 
         start = time.time()
-        result = dict()
+        #result = dict()
         if os.path.isdir(path):
             queue = list(get_all_in_dir(path))
             length = len(queue)
@@ -141,11 +142,11 @@ class populateJson:
                     tmp = self._json_reader(file, skip = skip)
                 else:
                     tmp = self._json_reader(file, skip = skip)
-                for key in tmp.keys():
-                    if key in result:
-                        result[key].update(tmp[key])
-                    else:
-                        result[key] = tmp[key]
+                #for key in tmp.keys():
+                #    if key in result:
+                #        result[key].update(tmp[key])
+                #    else:
+                #        result[key] = tmp[key]
                 print(f"{name} took {time.time()-start_sub}s")
                 
 
@@ -153,8 +154,8 @@ class populateJson:
             print(f"Response phase ended after {time.time()-start}s")
             if not os.path.isdir('output'):
                 os.makedirs('output')
-            with open('output'+sep+f'batch.json', 'w', encoding='utf8') as out:
-                json.dump(result, out, indent=4) 
+            #with open('output'+sep+f'batch.json', 'w', encoding='utf8') as out:
+            #    json.dump(result, out, indent=4) 
 
 def get_all_in_dir(dir, format = 'json'):
     for filename in os.listdir(dir):
