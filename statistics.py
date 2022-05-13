@@ -19,6 +19,7 @@ def compute(path):
     ref_pub = 0
     to_analyse = dict()
     aggr = []
+    batch_num = 0
 
     for file in get_all_in_dir(path):
         with open(file, 'r', encoding='utf8') as read:
@@ -33,13 +34,12 @@ def compute(path):
         
         
         for doi in info:
-            to_add = {'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':0}
+            to_add = {'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':''}
             dois_total += 1
             to_add['year'] = info[doi]['year']
             if info[doi]['crossref']:
                 to_add['on_crossref'] = 1
                 dois_crossref += 1
-            print(info[doi]['crossref'])
             if info[doi]['reference'] != 0:
                 to_add['ref-num'] = len(info[doi]['reference'])
                 ref_number += 1
@@ -56,6 +56,14 @@ def compute(path):
                         ref_pub +=1
                         to_add['asserted-by-pub'] += 1
             aggr.append(to_add)
+        if len(aggr) > 5000:
+            with open('.' +sep+ 'results' +sep+'aggregate_stats_' + str(batch_num)+'.csv','w+', encoding='utf8') as aggregates:
+                fieldnames = ['issn', 'doi-num',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year']
+                writer = DictWriter(aggregates, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(aggr)
+            batch_num += 1
+            aggr= []
     print(f'''
     Number of dois: {dois_total}
     Number of dois on crossref: {dois_crossref} Percentage: {dois_crossref / dois_total}
@@ -64,7 +72,7 @@ def compute(path):
     Number of reference dois asserted by publisher: {ref_pub} Percentage: {ref_pub / ref_number }
     Number of references with no doi: {ref_nd} Percentage: {ref_nd / ref_number}
     ''')
-    with open('.' +sep+ 'results' +sep+'aggregate_stats.csv','w+', encoding='utf8') as aggregates:
+    with open('.' +sep+ 'results' +sep+'aggregate_stats_' + str(batch_num)+'.csv','w+', encoding='utf8') as aggregates:
         fieldnames = ['issn', 'doi-num',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year']
         writer = DictWriter(aggregates, fieldnames=fieldnames)
         writer.writeheader()
