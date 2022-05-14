@@ -159,9 +159,9 @@ class populateJson:
 def get_all_in_dir(dir, format = 'json'):
     for filename in os.listdir(dir):
         f = os.path.join(dir, filename)
-        if os.path.isfile(f) and f[-4:] == format:
+
+        if os.path.isfile(f) and f[-len(format):] == format:
             yield f
-    
 
 
             

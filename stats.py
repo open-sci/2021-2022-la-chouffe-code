@@ -8,7 +8,8 @@ import statistics
 def get_all_in_dir(dir, format = 'json'):
     for filename in os.listdir(dir):
         f = os.path.join(dir, filename)
-        if os.path.isfile(f) and f[-4:] == format:
+
+        if os.path.isfile(f) and f[-len(format):] == format:
             yield f
 def compute(path):
     dois_total = 0
@@ -34,11 +35,12 @@ def compute(path):
                 for doi in info:
                     to_add = {'doi': doi,'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':''}
                     dois_total += 1
-                    if to_add['year']:
-                        to_add['year'] = info[doi]['year']
+                    to_add['year'] = info[doi]['year']
                     if info[doi]['crossref'] == 1:
                         to_add['on_crossref'] = 1
                         dois_crossref += 1
+                    else:
+                        to_add['on_crossref'] = 0
                     if info[doi]['reference'] != 0:
                         to_add['ref-num'] = len(info[doi]['reference'])
                         ref_num_glob += len(info[doi]['reference'])
