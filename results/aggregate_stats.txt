@@ -1,0 +1,15 @@
+
+    Number of dois: 5500099
+
+    Number of dois on crossref: 5113401 Percentage: 0.929692538261584
+
+    Number of dois on crossref with references: 3213985 Percentage : 0.6285415518947174
+
+    Number of total references: 142149705 Average number of references per article: 25.844935700248303 Median: 37
+
+    Number of reference dois asserted by crossref: 31183767 Percentage: 0.21937271695358074
+
+    Number of reference dois asserted by publisher: 82242320 Percentage: 0.5785613132295984
+
+    Number of references with no doi: 28723618 Percentage: 0.20206596981682093
+    
