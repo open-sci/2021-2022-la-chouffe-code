@@ -33,14 +33,14 @@ def compute(path):
                 
                 
                 for doi in info:
-                    to_add = {'doi': doi,'issn' : issn, 'doi-num': 1, 'on_crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':''}
+                    to_add = {'doi': doi,'issn' : issn, 'doi-num': 1, 'on-crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':''}
                     dois_total += 1
                     to_add['year'] = info[doi]['year']
                     if info[doi]['crossref'] == 1:
-                        to_add['on_crossref'] = 1
+                        to_add['on-crossref'] = 1
                         dois_crossref += 1
                     else:
-                        to_add['on_crossref'] = 0
+                        to_add['on-crossref'] = 0
                     if info[doi]['reference'] != 0:
                         to_add['ref-num'] = len(info[doi]['reference'])
                         ref_num_glob += len(info[doi]['reference'])
@@ -81,7 +81,7 @@ def compute(path):
     Number of references with no doi: {ref_nd} Percentage: {ref_nd / ref_num_glob}
     '''
     with open('.' +sep+ 'results' +sep+'aggregate_stats_' + str(batch_num)+'.csv','w+', encoding='utf8') as aggregates:
-        fieldnames = ['issn', 'doi-num',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year','doi']
+        fieldnames = ['issn', 'doi-num',  'on-crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year','doi']
         writer = DictWriter(aggregates, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(aggr)
