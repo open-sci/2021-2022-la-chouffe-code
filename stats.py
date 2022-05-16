@@ -62,15 +62,15 @@ def compute(path):
                         except:
                             print(file, doi)
                        
-                        aggr.append(to_add)
-                if len(aggr) > 100000:
-                    with open('.' +sep+ 'results' +sep+'aggregate_stats_' + str(batch_num)+'.csv','w+', encoding='utf8') as aggregates:
-                        fieldnames = ['doi','issn', 'doi-num',  'on_crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year']
-                        writer = DictWriter(aggregates, fieldnames=fieldnames)
-                        writer.writeheader()
-                        writer.writerows(aggr)
-                    batch_num += 1
-                    aggr= []
+                    aggr.append(to_add)
+            if len(aggr) > 100000:
+                with open('.' +sep+ 'results' +sep+'aggregate_stats_' + str(batch_num)+'.csv','w+', encoding='utf8') as aggregates:
+                    fieldnames = ['doi','issn', 'doi-num',  'on-crossref','reference','asserted-by-cr','asserted-by-pub','ref-undefined', 'ref-num','year']
+                    writer = DictWriter(aggregates, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(aggr)
+                batch_num += 1
+                aggr= []
     text = f'''
     Number of dois: {dois_total}\n
     Number of dois on crossref: {dois_crossref} Percentage: {dois_crossref / dois_total}\n
