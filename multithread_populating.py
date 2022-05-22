@@ -141,20 +141,13 @@ class populateJson:
                     tmp = self._json_reader(file, skip = skip)
                 else:
                     tmp = self._json_reader(file, skip = skip)
-                #for key in tmp.keys():
-                #    if key in result:
-                #        result[key].update(tmp[key])
-                #    else:
-                #        result[key] = tmp[key]
+
                 print(f"{name} took {time.time()-start_sub}s")
                 
 
                 start_sub = time.time()
             print(f"Response phase ended after {time.time()-start}s")
-            if not os.path.isdir('output'):
-                os.makedirs('output')
-            #with open('output'+sep+f'batch.json', 'w', encoding='utf8') as out:
-            #    json.dump(result, out, indent=4) 
+            
 
 def get_all_in_dir(dir, format = 'json'):
     for filename in os.listdir(dir):
