@@ -1,0 +1,37 @@
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix dct: <http://www.w3.org/ns/dcat#>.
+@prefix dctype:	<http://purl.org/dc/dcmitype/>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema>.
+@prefix schema: <https://schema.org/>.
+@prefix wd: <http://www.wikidata.org/entity/>.
+@prefix osw: <http://ontosoft.org/software#>.
+
+<https://doi.org/10.5281/zenodo.6569369>
+    a osw:Software;
+    rdfs:label "La Chouffe Software";
+    osw:hasCreator <https://orcid.org/0000-0001-7696-7574>;
+    osw:hasCreator <https://orcid.org/0000-0003-2445-2426>;
+    osw:hasCreator <https://orcid.org/0000-0002-9481-5053>;
+    osw:usedInPublication <10.5281/zenodo.6569370>;
+    osw:hasImplementationLanguage osw:Python
+    dcterms:subject "Scientometrics, DOAJ, Crossref";
+    dcterms:subject wd:Q1227538;
+    dcterms:subject wd:Q5188229;
+    dcterms:issued "2022-05-22";
+    dcterms:license <https://creativecommons.org/licenses/by/4.0>;
+    dcterms:description "A dataset containing information from the DOAJ and Crossref used in performing research about the availability of data from one another. Contains 3 folders; one with the clean batch that was used to create the populated one in populated_output; the last one contains csv files with aggregated information about the articles. Please refer to https://doi.org/10.5281/zenodo.6491625 for more details.".
+
+<https://orcid.org/0000-0001-7696-7574>
+    a schema:Person;
+    rdfs:label "Venditti, Giulia";
+    schema:affiliation wd:Q56459946.
+
+<https://orcid.org/0000-0003-2445-2426>
+    a schema:Person;
+    rdfs:label "Catizone, Chiara";
+    schema:affiliation wd:Q56459946.
+
+<https://orcid.org/0000-0002-9481-5053>
+    a schema:Person;
+    rdfs:label "Brembilla, Davide";
+    schema:affiliation wd:Q56459946.
