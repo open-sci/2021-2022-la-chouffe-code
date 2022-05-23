@@ -65,4 +65,13 @@ def clean(files):
         # output.write(result)
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Process files to populate with Crossref information about presence.')
+    parser.add_argument('path', metavar='path',type=str, 
+                    help='Path to the file or to the directory')
     
+    args = parser.parse_args()
+    if not os.path.isdir(f'.{sep}cleaned'):
+        os.makedirs(f'.{sep}cleaned')
+    clean(args.path)
+        

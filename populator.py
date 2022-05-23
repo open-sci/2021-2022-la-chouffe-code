@@ -15,7 +15,7 @@ from os import makedirs, sep
 import os
 from tqdm import tqdm
 import argparse
-def clean(path):
+def pop(path):
     journals = dict()
     with open('cleanJournalsDump.json', 'r') as input:
         journals = json.load(input)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if not os.path.isdir(f'.{sep}cleaned'):
         os.makedirs(f'.{sep}cleaned')
-    clean(args.path)
+    pop(args.path)
         
     
     
