@@ -32,7 +32,7 @@ def clean(files):
                 check = False #checker if the article has doi, if not it will be skipped as we cannot query Crossref without it 
                 
                 for item in article['bibjson']['identifier']:
-                    if 'doi' in item.values():
+                    if ('doi'|'DOI') in item.values():
                         if 'id' in item:
                             doi = item['id']
                             check = True
