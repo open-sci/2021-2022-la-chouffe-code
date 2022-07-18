@@ -53,9 +53,8 @@ class populateJson:
         This method manages the queries on the file level. If there is a temporary file (in the temp folder), skips the rows done; once the file is completed, it is loaded in the temp/completed folder. This method employs multithreading to speed up the requests at the API. It checks whether a DOI is on Crossref, if there are references and who is responsible for asserting the DOI.
         '''
         result = dict()
-        filename = file.split(sep)[1]
         data = None
-        if isinstance(file, str):          
+        if isinstance(file, str):  
             with open(file, encoding='utf8', mode='r') as json_data:
                 data = json.load(json_data)
                 if skip:
