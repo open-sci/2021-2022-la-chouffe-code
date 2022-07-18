@@ -12,6 +12,9 @@ import json
 import os
 from os import sep
 import argparse
+
+STM_SUBJECTS = ("R", "S", "T")
+
 def clean(path):
     data = None
     with open(path, 'r') as x:
@@ -20,14 +23,13 @@ def clean(path):
     df = dict()
 
     for journal in data:
-
         if 'pissn' in journal['bibjson']:
 
-            df[journal['bibjson']['pissn']]= {'code':'pissn', "country":journal['bibjson']['publisher']['country'], "subject":journal['bibjson']['subject'][0]}
+            df[journal['bibjson']['pissn']]= {'code':'pissn', "country":journal['bibjson']['publisher']['country'], "subject": "STM" if journal['bibjson']['subject'][0]['code'][0] in STM_SUBJECTS else "SSH"}
 
         elif 'eissn' in journal['bibjson']:
 
-            df[journal['bibjson']['eissn']]= {"country":journal['bibjson']['publisher']['country'], "subject":journal['bibjson']['subject'][0]}
+            df[journal['bibjson']['eissn']]= {"country":journal['bibjson']['publisher']['country'], "subject": "STM" if journal['bibjson']['subject'][0]['code'][0] in STM_SUBJECTS else "SSH"}
         else:
             print('both missing')
             
@@ -43,4 +45,3 @@ if __name__ == '__main__':
     if not os.path.isdir(f'.{sep}cleaned'):
         os.makedirs(f'.{sep}cleaned')
     clean(args.path)
-    

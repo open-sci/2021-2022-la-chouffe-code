@@ -8,6 +8,8 @@
 #THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import concurrent.futures
+from re import sub
+from urllib.parse import unquote
 from tqdm.contrib.concurrent import thread_map
 import requests
 import os
@@ -18,6 +20,14 @@ import random
 import requests_cache
 import backoff
 from tqdm import tqdm
+
+
+def normalise(id_string):
+        try:
+            doi_string = sub("\0+", "", sub("\s+", "", unquote(id_string[id_string.index("10."):])))
+            return doi_string.lower().strip()
+        except:  # Any error in processing the DOI will return None
+            return None
 
 class populateJson:
     '''
@@ -32,7 +42,7 @@ class populateJson:
         '''
         This method queries crossref by adding to the API url the DOI. It returns the result the request and the doi added. In order to avoid being blocked by the API.
         '''
-        query = self.api + doi
+        query = self.api + normalise(doi)
         #time.sleep(random.randint(1,3))
         
         req = requests.get(query, timeout=60)
@@ -44,72 +54,84 @@ class populateJson:
         '''
         result = dict()
         filename = file.split(sep)[1]
-        data = None           
-        with open(file, encoding='utf8', mode='r') as json_data:
-            data = json.load(json_data)
-            if skip:
-                with open(skip, 'r') as read:
-                    done = json.load(read)
-                    result = done
-                    for elements in done.values():
-                        for doi in elements.keys():
-                            data.pop(doi)
+        data = None
+        if isinstance(file, str):          
+            with open(file, encoding='utf8', mode='r') as json_data:
+                data = json.load(json_data)
+                if skip:
+                    with open(skip, 'r') as read:
+                        done = json.load(read)
+                        result = done
+                        for elements in done.values():
+                            for doi in elements:
+                                data.pop(doi)
+
         
         try:
+            to_do = set()
             for i in tqdm(range(0,len(data.keys()),1000)):
                 end = i + 999
                 if end > len(data)-1:
                     end = len(data)
                 to_analyse = list(data.keys())[i:end]
                 with tqdm(total=len(to_analyse)) as pbar:
-
                     with concurrent.futures.ThreadPoolExecutor() as executor:
-                        
-                            for response, doi in executor.map(self.query_crossref, to_analyse):
-                                pbar.update(1)
-                                index = " ".join(data[doi]['issns'])
-                                if response.headers["content-type"].strip().startswith("application/json"):
-                                    if response.status_code != 200:
-                                        tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
-                                        if index not in result:
-                                            
-                                            result[index] = {doi: tmp}
-                                        else:
-                                            result[index][doi] = tmp
+                        for response, doi in executor.map(self.query_crossref, to_analyse):
+                            pbar.update(1)
+                            index = " ".join(data[doi]['issns'])
+                            if response.headers["content-type"].strip().startswith("application/json"):
+                                if response.status_code == 404:
+                                    tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
+                                    if index not in result:
+                                        
+                                        result[index] = {doi: tmp}
                                     else:
-                                        info = response.json()['message']
-                                        
-                                        tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0}
+                                        result[index][doi] = tmp
+                                elif response.status_code == 200:
+                                    info = response.json()['message']
+                                    
+                                    tmp = {'crossref': 1, 'year': data[doi]['year'], 'reference': 0, 'type': info['type']}
 
-                                        if 'reference' in info:
-                                            tmp['reference'] = dict()
-                                            for element in info['reference']:
-                                                tmp['reference'][element['key']] = dict()
-                                                if 'DOI' in element:
-                                                    tmp['reference'][element['key']] = {'doi':element['DOI']}
-                                                else:
-                                                    tmp['reference'][element['key']] = {'doi':'not-specified'}
-                                                if 'doi-asserted-by' in element:
-                                                    tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
-                                                else:
-                                                    tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
+                                    if 'reference' in info:
+                                        tmp['reference'] = dict()
+                                        for element in info['reference']:
+                                            tmp['reference'][element['key']] = dict()
+                                            if 'DOI' in element:
+                                                tmp['reference'][element['key']] = {'doi':element['DOI']}
+                                            else:
+                                                tmp['reference'][element['key']] = {'doi':'not-specified'}
+                                            if 'doi-asserted-by' in element:
+                                                tmp['reference'][element['key']].update({'doi-asserted-by': element['doi-asserted-by']})
+                                            else:
+                                                tmp['reference'][element['key']].update({'doi-asserted-by': 'not-specified'})
 
+                                    
+                                    if index not in result:
                                         
-                                        if index not in result:
-                                            
-                                            result[index] = {doi: tmp}
-                                        else:
-                                            result[index][doi] = tmp
+                                        result[index] = {doi: tmp}
+                                    else:
+                                        result[index][doi] = tmp
                                 else:
-                                    print('error', response.status_code)
-            with open(f"temp{sep}completed{sep +filename}", 'w+') as out:
-                json.dump(result, out, indent=4)
-            return result
+                                    print(response.status_code)
+                                    to_do.add(doi)
+
+                            else:
+                                print('error', response.status_code)
+            if len(to_do) == 0:
+                return result
+            else:
+                time.sleep(5)
+                to_add = self._json_reader(to_do)
+                result.update(to_add)
+                return result
+
+                
         except Exception as e:
-            print(f'Error in processing {file}: what has been processed for now is in temp{sep+filename}. \nError: {e}')
-            with open(f"temp{sep +filename}", 'w+') as out:
-                json.dump(result, out, indent=4)
+            time.sleep(5)
+            to_add = self._json_reader(to_do)
+            result.update(to_add)
             return result
+
     
     def populate(self, path):
         '''
@@ -122,7 +144,7 @@ class populateJson:
             queue = list(get_all_in_dir(path))
             length = len(queue)
             idx = 0
-            if length<1:
+            if length < 1:
                 raise NotImplementedError
             start_sub = time.time()
             for file in queue:
@@ -141,6 +163,8 @@ class populateJson:
                     tmp = self._json_reader(file, skip = skip)
                 else:
                     tmp = self._json_reader(file, skip = skip)
+                with open(f"temp{sep}completed{sep +file.split(sep)[1]}", 'w+') as out:
+                    json.dump(tmp, out, indent=4)
                 #for key in tmp.keys():
                 #    if key in result:
                 #        result[key].update(tmp[key])

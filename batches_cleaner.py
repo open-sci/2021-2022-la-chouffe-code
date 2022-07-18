@@ -20,7 +20,7 @@ def get_all_in_dir(dir, format = 'json'):
 
 
 def clean(files):
-    for filename in files:
+    for filename in get_all_in_dir(files):
         if filename != '.DS_Store':
             file = open(filename)
             data =  json.load(file)
@@ -32,7 +32,7 @@ def clean(files):
                 check = False #checker if the article has doi, if not it will be skipped as we cannot query Crossref without it 
                 
                 for item in article['bibjson']['identifier']:
-                    if ('doi'|'DOI') in item.values():
+                    if 'doi' in item.values() or 'DOI' in item.values():
                         if 'id' in item:
                             doi = item['id']
                             check = True
