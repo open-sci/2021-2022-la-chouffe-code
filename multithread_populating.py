@@ -27,7 +27,14 @@ def normalise(id_string):
             doi_string = sub("\0+", "", sub("\s+", "", unquote(id_string[id_string.index("10."):])))
             return doi_string.lower().strip()
         except:  # Any error in processing the DOI will return None
-            return None
+            return "False"
+
+
+def merge(dict1,dict2):
+    for el in dict2:
+        if el in dict1:
+            dict1[el].update(dict2[el])
+    return dict1
 
 class populateJson:
     '''
@@ -44,8 +51,10 @@ class populateJson:
         '''
         query = self.api + normalise(doi)
         #time.sleep(random.randint(1,3))
-        
-        req = requests.get(query, timeout=60)
+        try: 
+            req = requests.get(query, timeout=60)
+        except:
+            return 1234, doi
         return req, doi
     
     def _json_reader(self, file, skip = False):
@@ -64,11 +73,11 @@ class populateJson:
                         for elements in done.values():
                             for doi in elements:
                                 data.pop(doi)
-
-        
+        else:
+            data = file
+        to_do = dict()
         try:
-            to_do = set()
-            for i in tqdm(range(0,len(data.keys()),1000)):
+            for i in tqdm(range(0,len(data),1000)):
                 end = i + 999
                 if end > len(data)-1:
                     end = len(data)
@@ -76,9 +85,14 @@ class populateJson:
                 with tqdm(total=len(to_analyse)) as pbar:
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         for response, doi in executor.map(self.query_crossref, to_analyse):
+                            if response == 1234:
+                                to_do[doi] = data[doi]
+                                time.sleep(5)
+                                continue
                             pbar.update(1)
                             index = " ".join(data[doi]['issns'])
                             if response.headers["content-type"].strip().startswith("application/json"):
+                                
                                 if response.status_code == 404:
                                     tmp = {'crossref': 0, 'year': data[doi]['year'], 'reference': 0}
                                     if index not in result:
@@ -112,7 +126,7 @@ class populateJson:
                                         result[index][doi] = tmp
                                 else:
                                     print(response.status_code)
-                                    to_do.add(doi)
+                                    to_do[doi] = data[doi]
 
                             else:
                                 print('error', response.status_code)
@@ -121,15 +135,15 @@ class populateJson:
             else:
                 time.sleep(5)
                 to_add = self._json_reader(to_do)
-                result.update(to_add)
-                return result
+                return merge(result, to_add)
 
                 
         except Exception as e:
+            print(e)
             time.sleep(5)
             to_add = self._json_reader(to_do)
-            result.update(to_add)
-            return result
+            return merge(result, to_add)
+            
 
     
     def populate(self, path):
