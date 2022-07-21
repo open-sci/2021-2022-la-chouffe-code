@@ -125,10 +125,10 @@ class populateJson:
                                     else:
                                         result[index][doi] = tmp
                                 else:
-                                    print(response.status_code)
                                     to_do[doi] = data[doi]
 
                             else:
+                                to_do[doi] = data[doi]
                                 print('error', response.status_code)
             if len(to_do) == 0:
                 return result
@@ -169,8 +169,7 @@ class populateJson:
                 tmp = None
                 skip = False
                 if f'temp{sep}completed' + sep + name in done:
-                    with open(f'temp{sep}completed{sep+name}', 'r') as infile:
-                        tmp = json.load(infile)
+                    continue
                 elif f'temp{sep}' + name in part_done:
                     skip = 'temp' + sep + name
                     tmp = self._json_reader(file, skip = skip)
