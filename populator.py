@@ -31,11 +31,9 @@ def pop(path):
         for el in check:
             if el in journals:
                 out.at[issn, 'country'] = journals[el]['country']
-                out.at[issn, 'subject'] = journals[el]['subject']['code'][0]   
+                out.at[issn, 'subject'] = journals[el]['subject']
         batch_num += 1
-        if not os.path.isdir('tmp'):
-            makedirs('tmp')
-        out.to_csv(f'tmp{sep}batch_{batch_num}.csv', encoding='utf8', chunksize=10000)
+        out.to_csv(f'pop{sep}batch_{batch_num}.csv', encoding='utf8', chunksize=10000)
 
 
 if __name__ == '__main__':
@@ -44,8 +42,8 @@ if __name__ == '__main__':
                     help='Path to the file or to the directory')
     
     args = parser.parse_args()
-    if not os.path.isdir(f'.{sep}cleaned'):
-        os.makedirs(f'.{sep}cleaned')
+    if not os.path.isdir(f'.{sep}pop'):
+        os.makedirs(f'.{sep}pop')
     pop(args.path)
         
     

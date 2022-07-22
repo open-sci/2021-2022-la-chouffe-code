@@ -36,9 +36,11 @@ def compute(path):
                     to_add = {'doi': doi,'issn' : issn, 'doi-num': 1, 'on-crossref':0, 'reference':0,'asserted-by-cr':0,'asserted-by-pub':0,'ref-undefined':0, 'ref-num':0, 'year':''}
                     dois_total += 1
                     to_add['year'] = info[doi]['year']
+                    to_add['type'] = ''
                     if info[doi]['crossref'] == 1:
                         to_add['on-crossref'] = 1
                         dois_crossref += 1
+                        to_add['type'] = info[doi]['type']
                     else:
                         to_add['on-crossref'] = 0
                     if info[doi]['reference'] != 0:
@@ -98,6 +100,6 @@ if __name__ == '__main__':
                     help='Path to the file or to the directory')
     
     args = parser.parse_args()
-    if not os.path.isdir(f'.{sep}results'):
-        os.makedirs(f'.{sep}results')
+    if not os.path.isdir(f'.{sep}stats'):
+        os.makedirs(f'.{sep}stats')
     compute(args.path)
