@@ -54,13 +54,13 @@ ETA: 30s
 ETA: about 1h per batch (In our case: ca. 78h)
 
 <code>py -m  stats "temp/completed"</code>
-ETA:
+ETA: 5m
 
-<code>py -m journal_cleaner "path/to/articles/dump" </code>
+<code>py -m journal_cleaner "path/to/journal/dump" </code>
 ETA: 1m
 
 <code>py -m populator "stats"</code>
-ETA:
+ETA: 1,30h
 
 In the end, the pickle file was created through the Python interpreter:
 
