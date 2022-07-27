@@ -64,10 +64,10 @@ ETA: 1,30h
 
 In the end, the pickle file was created through the Python interpreter:
 
-<code>py #open the python shell</code>
+<code>py #open the python shell</code>  <br>
 <code>import pandas as pd
 from stats import get_all_in_dir
 dir = get_all_in_dir('results','csv')
 df = pd.concat([pd.read_csv(file, encoding='utf8') for file in dir])
 df.to_pickle('result.pkl')</code>
-ETA:
+ETA: 10m
