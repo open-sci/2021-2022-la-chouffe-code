@@ -46,15 +46,16 @@ Introduce approaches (to be even developed in future works) for correcting data 
 
 Clarify what measure you used to identify "smaller journals" - what is a "small journal"? What is the threshold used to differentiate it from a "big journal"? What is a "medium journal"?
 
-*Smaller is referred to the number of dois associated to the journal, so it refers to the distribution of number of articles per journal.*
+*By saying this we do not refer to any previous classification made by other researchers. We defined as "smaller" those journals  havng less than 10 DOIs specified in their metadata.*
 
 Including, in the analysis, also the publication type of the citing entity could be beneficial for the discussion of the results, I believe, since you can show if there are different behaviours depending on the kind of the citing entities.
 
 *We tried this kind of analysis and we found that... .*
+*In the new version of the project we added some visualizations – and the following analysis – showing the behaviour of journals belonging to different fuields. By doing this we followed [Library of Congress Classification of subjects & categorical](https://www.loc.gov/catdir/cpso/lcco/), grouping the journals into two macro-categories: Science Technology and Medical (STM) field or Social Sciences and Humanities field (SSH). We found out that (to be continued...)*
 
 Did you use some approach to check about possible dumps in the original data, in particular those from Crossref? It is important to do this check, since it may happen that in a Crossref dump the same entity (i.e. the same citing DOI) is introduced twice or more times. It is, of course, a mistake from Crossref, but it happens and must be handled since it may affect the results of your analysis. How did you approach it?
 
-*We used a dictionary for keeping track of the DOIs; since no duplicates are possible in this datatype, this problem is not possible*
+*We used a dictionary for keeping track of the DOIs; since no duplicates are possible in this datatype, this problem is not possible.*
 
 In answering one of the comments during the presentation, you said that Crossref modifies the metadata that is deposited to some extent. It is necessary to clarify if and how Crossref does it, in particular clarifying which metadata it modifies and providing specific source documentation that supports this claim.
 
@@ -72,9 +73,10 @@ there are a few typos, please correct them.
 *We reviewed the DMP to remove typos*
 
 if you mention something in the description, please add links to it (e.g., when you mention Dublin Core, add the link to the vocabulary used)
-### DOAJ and Crossref populated DATASET
 
 *We have added links to the entities.*
+
+### DOAJ and Crossref populated DATASET
 
 1.1.1: it is not clear in this context what it means that "building the final dataframe". The dataframe is something you have in your mind, but it has not been clarified in the DMP at all. Please, be more generic or provide a clear description of what you refer to.
 
@@ -82,7 +84,7 @@ if you mention something in the description, please add links to it (e.g., when 
 
 1.1.2: add links to the Crossref API and DOAJ dump.
 
-*We added links*
+*We added the links*
 
 1.1.3: it refers to the format used (CSV, JSON), not the content.
 
@@ -138,7 +140,8 @@ if you mention something in the description, please add links to it (e.g., when 
 
 *Rightfully so, we removed this point*
 
-DOAJ and Crossref aggregated DATASET
+## DOAJ and Crossref aggregated DATASET
+
 3.1.1.8: if it is possible, please add a brief description of the naming convention (how it works)
 
 *We provided an example*
@@ -151,7 +154,8 @@ DOAJ and Crossref aggregated DATASET
 
 *We hope to have clarified this point*
 
-DOAJ cleaned articles DATASET
+## DOAJ cleaned articles DATASET
+
 3.1.1.8: if it is possible, please add a brief description of the naming convention (how it works)
 
 *We provided an example of it.*
@@ -164,12 +168,13 @@ DOAJ cleaned articles DATASET
 
 *We hope to have clarified this point*
 
-Protocol
+## Protocol
 No particular comments, please just check again the text to correct a few typos.
 
 *We hope to have removed typos and we added some more specification for the new software*
 
 ## Software
+
 The README.md in the GitHub repository does not contain an appropriate introduction to run the software and, in particular, how to and in which order to call the various scripts to run the process correctly. In addition, you should also specify with which configuration (i.e. computer, processor, RAM, HD, etc.) you have run the scripts to get your final output since this is crucial to foster reproducibility. Finally, if the software is somehow related to other documents (the protocol, the article, the website, etc.), please mention them here in the README.md.
 
 *We added a better description to run the software as well as description of the configuration and links to all resources*
@@ -178,7 +183,8 @@ Finally, the item on Zenodo describing the software is not linked via GitHub. I 
 
 *We added the sofware in Zenodo in the correct way*
 
-Article
+## Article
+
 "to evaluate the management of data linked to articles (references)": talk explicitly about references, since "management of data linked to articles" can refer also to something else (e.g. supplementary material of an article, which is not included in references).
 
 *We corrected this point*
@@ -232,7 +238,7 @@ Table 4, "uncertain date": what do you mean by "uncertain"? Unknown?
 
 "by the fact that newer articles tend to cite more recent articles that have a DOI": this claim should be supported somehow. It is very strong.
 
-*We supported this claim by...*
+*We agree that this claim is too strong and we do not have data over cited entities publication to support it. Thus, we have rephrased our speculation and made clear that this is an hypothesis made after analysing the increasing or decreasing over time of the amount of DOIs in articles' reference lists. Therefore we suggest this point as a new research topic.*
 
 All figures should be moved within the content, close to where they are mentioned for the very first time, otherwise, it is very difficult to read the article.
 
@@ -248,7 +254,7 @@ Figure 15 is unreadable. My suggestion is to use colouring of the area of the co
 
 Figure 13 and Figure 16 can be collapsed into just one graph, I believe.
 
-*We collapsed it*
+*We collapsed it in a sunburst visualization*
 
 Please, carefully read the article again to correct typos and other mistakes.
 
