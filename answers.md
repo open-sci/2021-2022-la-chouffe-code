@@ -46,7 +46,7 @@ Introduce approaches (to be even developed in future works) for correcting data 
 
 Clarify what measure you used to identify "smaller journals" - what is a "small journal"? What is the threshold used to differentiate it from a "big journal"? What is a "medium journal"?
 
-*By saying this we do not refer to any previous classification made by other researchers. We defined as "smaller" those journals  havng less than 10 DOIs specified in their metadata.*
+*We mean those journals having a mean ad median number of articles lower than the median of the total sample. By saying this we do not refer to any previous classification made by other researchers.*
 
 Including, in the analysis, also the publication type of the citing entity could be beneficial for the discussion of the results, I believe, since you can show if there are different behaviours depending on the kind of the citing entities.
 
