@@ -14,7 +14,7 @@ In Crossref data, in case a DOI is already specified by the publisher in one of 
 
 Since you used a multithread approach to download data from Crossref, did you check that the Crossref API returned always good answers (i.e. HTTP status code 200)? How did you handle possible problems (e.g. when the request to Crossref returned a different HTTP status code)?
 
-*We added a time.sleep function to avoid overloading the API*
+*We added a time.sleep function to avoid overloading the API, as well as temporarily store the dois that returned a different status code to retry until the result is clear.*
 
 During the presentation, someone said that the license of a journal affected, somehow, the license of all its data. How is it so? In particular, considering that bibliographic metadata and citations, in Crossref, are separate, it is entirely possible that the article has a different license from that specified to its metadata in Crossref. Thus, what did you mean by the initial claim?
 
@@ -34,11 +34,11 @@ Similarly, the diagram with the circles is not clear. What does the dimension of
 
 Among the articles not specifying any reference list, there is the possibility that its condition of not having a reference list is correct? For instance, often editorials of journal issues may not include reference lists at all, as well as letters. Were you able to identify, somehow, when the absence of reference lists is justified?
 
-*We added this level of analysis in this version. This does not change substantially the state of data, but it was interesting to add.*
+*We tried this level of analysis in this version. This does not change substantially the state of data, as over 95% of data is from articles, but it was interesting for better comprehending the data from DOAJ..*
 
 During the presentation, it seems that before 2000, according to the data published in Crossref, no DOIs are specified in the reference list. Is it really so? I would suggest checking it carefully, or to justify the claim.
 
-*Data suggests that most references before 2000 do not have a DOI; this might be connected to the problem of retroactively give a DOI to articles, an effort that might not be easy for some publishers.*
+*We checked and it is true that it is not as clear cut as it seemed before. Still, for articles after 2010 the percentage of reference lists with a DOI is significantly higher.*
 
 Introduce approaches (to be even developed in future works) for correcting data that include Persian dates.
 
@@ -50,8 +50,7 @@ Clarify what measure you used to identify "smaller journals" - what is a "small 
 
 Including, in the analysis, also the publication type of the citing entity could be beneficial for the discussion of the results, I believe, since you can show if there are different behaviours depending on the kind of the citing entities.
 
-*We tried this kind of analysis and we found that... .*
-*In the new version of the project we added some visualizations – and the following analysis – showing the behaviour of journals belonging to different fuields. By doing this we followed [Library of Congress Classification of subjects & categorical](https://www.loc.gov/catdir/cpso/lcco/), grouping the journals into two macro-categories: Science Technology and Medical (STM) field or Social Sciences and Humanities field (SSH). We found out that (to be continued...)*
+*We tried adding the publication types, but since the number of resources different from journal articles is so low and was retrieved pnly through Crossref we could not add any significant information.*
 
 Did you use some approach to check about possible dumps in the original data, in particular those from Crossref? It is important to do this check, since it may happen that in a Crossref dump the same entity (i.e. the same citing DOI) is introduced twice or more times. It is, of course, a mistake from Crossref, but it happens and must be handled since it may affect the results of your analysis. How did you approach it?
 
@@ -207,11 +206,11 @@ Table 4, "uncertain date": what do you mean by "uncertain"? Unknown?
 
 "not distributed in a decisive way": what does it mean?
 
-*We meant the distribution does not paint a clear picture; we hope to have clarified the point in the article.*
+*We meant the distribution does not paint a clear picture, we cannot draw conclusions; we hope to have clarified the point in the article.*
 
 "they have very different degrees of metadata quality": what do you mean? Did you have checked every single field to measure its quality?
 
-*This was referring to a possible explanation for the problem of ditribution of DOIs on Crossref; we could not check this, clearly, but we referred to other literature that had this point.*
+*This was referring to a possible explanation for the problem of ditribution of DOIs on Crossref; we could not check this, clearly, but we referred to other literature that had done such analysis.*
 
 "Some of the articles did not provide a DOI but a link (e.g., dx.DOI.org/DOI)": be aware that, in the community, specifying a DOI or a DOI URL (e.g. https://doi.org/10.1234/askdjsk), is equivalent! Of course, it is different if in Crossref there is the field DOI specified in the object defining a cited object or if it is only included in the plain text of the reference list.
 
