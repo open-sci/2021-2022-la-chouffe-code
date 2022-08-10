@@ -253,7 +253,7 @@ Figure 15 is unreadable. My suggestion is to use colouring of the area of the co
 
 Figure 13 and Figure 16 can be collapsed into just one graph, I believe.
 
-*We collapsed it in a sunburst visualization*
+*We collapsed it*
 
 Please, carefully read the article again to correct typos and other mistakes.
 
